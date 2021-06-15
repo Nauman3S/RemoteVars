@@ -26,12 +26,14 @@ class IoTLibrary
 {
   public:
 
-    int temp;
-    uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (void)); //simple callback function prototype
-    uint8_t addProp(float localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (void)); //simple callback function prototype
-    uint8_t addProp(char* localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (void)); //simple callback function prototype
+    //publish prototypes
+    uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
+    uint8_t addProp(float localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
+    uint8_t addProp(char* localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
    // uint8_t addProp(String localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (void)); //simple callback function prototype
     
+    //subscribe prototypes
+    uint8_t addProp( uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void SubCallback (int), int arg); //simple callback function prototype
 
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (int), int arg); //int callback
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (float), float arg); //float callback
@@ -41,15 +43,14 @@ class IoTLibrary
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, float callback (float), float arg); //float callback
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, String callback (String), String arg); //string object callback
 
-    void loopIoTLibrary();
+    void loopIoTLibrary(char * dataStreamFromConnectionHandler);
     char * ShowUniversalDoc();
     private:
         StaticJsonDocument<500> UniversalDoc[MAX_UNIVERSAL_DOC_ARRAY_LEN];
         uint8_t NextEmptyIndex=0;
-
+        uint8_t dataPubPointer=0;
         
-        StaticJsonDocument<500*MAX_UNIVERSAL_DOC_ARRAY_LEN> tempDoc;
-        JsonArray tempArray = tempDoc.createNestedArray("UniversalArray");
+        
         
 
         uint8_t checkNextEmptyIndexAvailabilityAndIncrement();
@@ -60,19 +61,35 @@ class IoTLibrary
 
 };
 
-void IoTLibrary::loopIoTLibrary(){
-    char temp[500];
-    //generate universal array for sending
-    for (int i=0;i<NextEmptyIndex-1;i++){
-        serializeJson(UniversalDoc[i], temp);
-        tempArray.add(temp);
+void IoTLibrary::loopIoTLibrary(char * dataStreamFromConnectionHandler){
+    //serialize json for sending to communication handler
+    char a[600];
+    for(int i=0;i<NextEmptyIndex;i++){
+    serializeJson(UniversalDoc[i],a);
+    printf("SENDING: \n%s\n",a);
+    this->dataPubPointer++;
     }
+    this->dataPubPointer=0;
     /////
     
     
-    char a[500];
-    serializeJson(tempDoc, a);
-    printf("\n%s\n",a);
+    
+
+
+    //deserialize the incomming data
+
+    DynamicJsonDocument doc(600);
+    deserializeJson(doc, a);
+
+    const char* dt = doc["DATA_TYPE"];
+    const int docsN = doc["NumberOfDocs"];
+    
+    printf("%s  %d",dt,docsN);
+    // long time          = doc["time"];
+    // double latitude    = doc["data"][0];
+    // double longitude   = doc["data"][1];
+   
+    
 }
 
 uint8_t IoTLibrary::checkNextEmptyIndexAvailabilityAndIncrement(){
@@ -99,6 +116,7 @@ void IoTLibrary::constructJSONDocument(uint8_t DATA_TYPE,int dataValue, uint8_t 
      doc["Permissions"] = PERMISSIONS::getStringPermission(PERMISSIONS);
      doc["Event"] = EVENTS::getStringEvent(EVENT);
      doc["Method"] = METHODS::getStringMethod(METHOD);
+     doc["NumberOfDocs"] = NextEmptyIndex-1;
      
 
     UniversalDoc[NextEmptyIndex-1]=doc;
@@ -112,6 +130,7 @@ void IoTLibrary::constructJSONDocument(uint8_t DATA_TYPE,float dataValue, uint8_
      doc["Permissions"] = PERMISSIONS::getStringPermission(PERMISSIONS);
      doc["Event"] = EVENTS::getStringEvent(EVENT);
      doc["Method"] = METHODS::getStringMethod(METHOD);
+     doc["NumberOfDocs"] = NextEmptyIndex-1;
      
 
     UniversalDoc[NextEmptyIndex-1]=doc;
@@ -126,42 +145,54 @@ void IoTLibrary::constructJSONDocument(uint8_t DATA_TYPE,char * dataValue, uint8
      doc["Permissions"] = PERMISSIONS::getStringPermission(PERMISSIONS);
      doc["Event"] = EVENTS::getStringEvent(EVENT);
      doc["Method"] = METHODS::getStringMethod(METHOD);
+     doc["NumberOfDocs"] = NextEmptyIndex-1;
      
 
     UniversalDoc[NextEmptyIndex-1]=doc;
 
 }
 
-uint8_t IoTLibrary::addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void callback (void)){
-    
+
+uint8_t IoTLibrary::addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
+    if(METHOD==METHODS::PUBLISH){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         printf("addProp  %d %d %d nextInd %d",localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
         constructJSONDocument(DATATYPES::INT,localVar,PERMISSIONS,EVENT,METHOD);
-        callback();
+        PubCallback();
+    }
     }
 
     return 1;
 }
-uint8_t IoTLibrary::addProp(float localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void callback (void)){
-    
+uint8_t IoTLibrary::addProp(float localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
+    if(METHOD==METHODS::PUBLISH){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         printf("addProp  %d %d %d nextInd %d",localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
         constructJSONDocument(DATATYPES::FLOAT,localVar,PERMISSIONS,EVENT,METHOD);
-        callback();
+        PubCallback();
     }
-
+    }
     return 1;
 }
 
-uint8_t IoTLibrary::addProp(char * localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void callback (void)){
-    
+uint8_t IoTLibrary::addProp(char * localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
+    if(METHOD==METHODS::PUBLISH){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         printf("addProp  %d %d %d nextInd %d",localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
         constructJSONDocument(DATATYPES::CHAR_ARRAY,localVar,PERMISSIONS,EVENT,METHOD);
-        callback();
+        PubCallback();
+    }
+    }
+    return 1;
+}
+
+////////Subscribe methods
+uint8_t IoTLibrary::addProp( uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void SubCallback (int), int arg){
+    if(METHOD==METHODS::SUBSCRIBE){
+        
+        SubCallback(arg);
     }
 
-    return 1;
 }
 
 uint8_t IoTLibrary::addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void callback (int), int arg){

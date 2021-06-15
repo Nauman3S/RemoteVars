@@ -16,7 +16,7 @@ int main() {
     al.addProp(99, PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, printIT);
     al.addProp((float)12.1, PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, printIT);
 
-    
+
     al.addProp(strAr, PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, printIT);
     al.addProp(12, PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, printINT,11);
     
@@ -36,6 +36,6 @@ int main() {
 
     al.ShowUniversalDoc();
 
-    al.loopIoTLibrary();
+    al.loopIoTLibrary("tmep");
     return 0;
 }
