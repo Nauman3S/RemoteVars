@@ -3,6 +3,8 @@
 #include "const_values.h"
 #include "consts.h"
 #include "ArduinoJSON.h"
+#include "CommunicationHandler.h"
+
 
 #define STRING_EMU 1 //arduino string object emulator
 #if STRING_EMU
@@ -26,6 +28,10 @@ class IoTLibrary
 {
   public:
 
+    IoTLibrary(CommunicationHandler *ch){
+        UniversalCommHandle=ch;
+    }
+
     //publish prototypes
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
     uint8_t addProp(float localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
@@ -43,12 +49,21 @@ class IoTLibrary
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, float callback (float), float arg); //float callback
     uint8_t addProp(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, String callback (String), String arg); //string object callback
 
-    void loopIoTLibrary(char * dataStreamFromConnectionHandler);
+    void loopIoTLibrary(char * dataStreamFromConnectionHandler);//for pub/sub both
+    void loopIoTLibrary();//for pub only
     char * ShowUniversalDoc();
     private:
         StaticJsonDocument<500> UniversalDoc[MAX_UNIVERSAL_DOC_ARRAY_LEN];
         uint8_t NextEmptyIndex=0;
         uint8_t dataPubPointer=0;
+
+        //Subscriber Vars
+        uint8_t NumberOfSubDocs=0;
+        uint8_t readPointer=0;
+        //DynamicJsonDocument UniversalDocSub(1024);
+        StaticJsonDocument<500> UniversalDocSub[MAX_UNIVERSAL_DOC_ARRAY_LEN];
+        //DynamicJsonDocument doc(1024);
+        ///
         
         
         
@@ -57,38 +72,73 @@ class IoTLibrary
         void constructJSONDocument(uint8_t DATA_TYPE,int dataValue, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
         void constructJSONDocument(uint8_t DATA_TYPE,float dataValue, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
         void constructJSONDocument(uint8_t DATA_TYPE,char* dataValue, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
+
+        void PublisherLoop();
+        void SubscriberLoop();
        // void constructJSONDocument(uint8_t DATA_TYPE,String dataValue, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
 
+
+        //communication handler
+        CommunicationHandler  * UniversalCommHandle;
 };
 
-void IoTLibrary::loopIoTLibrary(char * dataStreamFromConnectionHandler){
+void IoTLibrary::PublisherLoop(){
     //serialize json for sending to communication handler
     char a[600];
     for(int i=0;i<NextEmptyIndex;i++){
     serializeJson(UniversalDoc[i],a);
     printf("SENDING: \n%s\n",a);
+    UniversalCommHandle->sendJSONString(a);
     this->dataPubPointer++;
     }
     this->dataPubPointer=0;
     /////
-    
-    
-    
+}
 
 
-    //deserialize the incomming data
+void IoTLibrary::loopIoTLibrary(){
+    PublisherLoop();   
+}
+void IoTLibrary::SubscriberLoop(){
+    char  a[600];
+    //a=UniversalCommHandle->readJSONString();
 
-    DynamicJsonDocument doc(600);
-    deserializeJson(doc, a);
+    //get data string here in char a[600]
+    serializeJson(UniversalDoc[NextEmptyIndex-1],a);//not required; just for testing
+    //a=UniversalCommHandle->readJSONString();
 
-    const char* dt = doc["DATA_TYPE"];
-    const int docsN = doc["NumberOfDocs"];
-    
-    printf("%s  %d",dt,docsN);
+    //deserialize the incomming data string
+    DynamicJsonDocument temp(500);
+    deserializeJson(temp, a);
+    UniversalDocSub[0]=temp;
+    //extract number of docs
+    const int NumberOfSubDocs = UniversalDocSub[0]["NumberOfDocs"];
+    printf("  %d",NumberOfSubDocs);
+    readPointer++;//first doc already read
+    if(NumberOfSubDocs>0){
+        if(readPointer>NumberOfSubDocs){
+            readPointer=0;
+        }
+        deserializeJson(temp, a);
+        UniversalDocSub[readPointer]=temp;
+
+        
+        readPointer++;
+    }
+    const int NS = UniversalDocSub[1]["NumberOfDocs"];
+    printf("  %d",NS);
+    //const char* dt = doc["DATA_TYPE"];
     // long time          = doc["time"];
     // double latitude    = doc["data"][0];
     // double longitude   = doc["data"][1];
    
+}
+void IoTLibrary::loopIoTLibrary(char * dataStreamFromConnectionHandler){
+    PublisherLoop();
+    
+    
+    SubscriberLoop();
+    
     
 }
 
@@ -117,6 +167,7 @@ void IoTLibrary::constructJSONDocument(uint8_t DATA_TYPE,int dataValue, uint8_t 
      doc["Event"] = EVENTS::getStringEvent(EVENT);
      doc["Method"] = METHODS::getStringMethod(METHOD);
      doc["NumberOfDocs"] = NextEmptyIndex-1;
+     
      
 
     UniversalDoc[NextEmptyIndex-1]=doc;
