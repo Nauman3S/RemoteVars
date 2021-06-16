@@ -5,9 +5,10 @@
 #include "ArduinoJSON.h"
 #include "CommunicationHandler.h"
 
+#define DEVMODE 1 //dev mode helper
+#define STRING_EMU 0 //arduino string object emulator
 
-#define STRING_EMU 1 //arduino string object emulator
-#if STRING_EMU
+#if STRING_EMU==1
 class String{
     public:
     char * val;
@@ -104,9 +105,11 @@ void IoTLibrary::SubscriberLoop(){
     //a=UniversalCommHandle->readJSONString();
 
     //get data string here in char a[600]
+    
+    UniversalCommHandle->readJSONString(a);
+    #if DEVMODE
     serializeJson(UniversalDoc[NextEmptyIndex-1],a);//not required; just for testing
-    //a=UniversalCommHandle->readJSONString();
-
+    #endif
     //deserialize the incomming data string
     DynamicJsonDocument temp(500);
     deserializeJson(temp, a);
