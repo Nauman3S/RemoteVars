@@ -1,0 +1,30 @@
+name: AUnit Tests
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup
+      run: |
+        cd ..
+        git clone https://github.com/bxparks/AUnit
+        git clone https://github.com/bxparks/AceCommon
+        git clone https://github.com/bxparks/AceCRC
+        git clone https://github.com/bxparks/AceUtils
+        git clone https://github.com/bxparks/AceRoutine
+
+    - name: Verify examples
+      run: |
+        make -C examples
+        make -C libraries
+
+    - name: Verify tests
+      run: |
+        make -C libraries tests
+        make -C libraries runtests
