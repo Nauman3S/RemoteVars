@@ -34,14 +34,18 @@ class IoTLibrary
         UniversalCommHandle=ch;
     }
 
-    //publish prototypes
+    //publish prototypes with callbacks
     uint8_t addProperty(int * localVar, String dataTopic,uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
     uint8_t addProperty(double * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
     uint8_t addProperty(String * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void PubCallback (void)); //simple callback function prototype
+    //publish prototypes without callbacks
+    uint8_t addProperty(int * localVar, String dataTopic,uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD); 
+    uint8_t addProperty(double * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
+    uint8_t addProperty(String * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
    
     
     //subscribe prototypes
-    uint8_t addProperty(  uint8_t METHOD, String dataTopic, void SubCallback (String topic, String data)); //simple callback function prototype
+    uint8_t addProperty( String dataTopic,String * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)); //simple callback function prototype
 
     // uint8_t addProperty(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (int), int arg); //int callback
     // uint8_t addProperty(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (float), float arg); //float callback
@@ -131,45 +135,16 @@ void IoTLibrary::PublisherLoop(){
 // }
 
 void IoTLibrary::SubscriberLoop(){
-    // char  a[600];
-    // //a=UniversalCommHandle->readJSONString();
-
-    // //get data string here in char a[600]
-    // printf("SubscriberLOOPStart");
-    // UniversalCommHandle->readJSONString(a);
-    // #if DEVMODE
-    // serializeJson(UniversalDoc[NextEmptyIndex-1],a);//not required; just for testing
-    // #endif
-    // //deserialize the incomming data string
-    // DynamicJsonDocument temp(500);
-    // deserializeJson(temp, a);
-    // UniversalDocSub[0]=temp;
-    // //extract number of docs
-    // const int NumberOfSubDocs = UniversalDocSub[0]["NumberOfDocs"];
-    // printf("SubscriberLOOP::::  %d topic=%s",NumberOfSubDocs,UniversalDoc[0]["DataTopic"]);
-    // strcpy(subscribedTopics[0],UniversalDoc[0]["DataTopic"]);
     
-    // readPointer++;//first doc already read
-    // if(NumberOfSubDocs>0){
-    //     if(readPointer>NumberOfSubDocs){
-    //         readPointer=0;
-    //     }
-    //     deserializeJson(temp, a);
-    //     UniversalDocSub[readPointer]=temp;
-    //     //subscribedTopics[readPointer]=UniversalDocSub[readPointer]["DataTopic"];
-    //     strcpy(subscribedTopics[readPointer],UniversalDocSub[readPointer]["DataTopic"]);
+    String incommingDataJSON=UniversalCommHandle->readJSONString();
+    if(jh.isValidJSON(incommingDataJSON)==1){
+        printf("validjson");    
+    }
+    else{
+        //Incomming JSON is invalid
+    }
 
-        
-    //     readPointer++;
-    // }
-
-
-    // const int NS = UniversalDocSub[1]["NumberOfDocs"];
-    // printf("  %d",NS);
-    //const char* dt = doc["DATA_TYPE"];
-    // long time          = doc["time"];
-    // double latitude    = doc["data"][0];
-    // double longitude   = doc["data"][1];
+    
     printf("SubscriberLOOPEND");
     
    
@@ -178,7 +153,7 @@ void IoTLibrary::loopIoTLibrary(){
     PublisherLoop();
     
     
-    //SubscriberLoop();
+    SubscriberLoop();
     
     
 }
@@ -201,7 +176,7 @@ String IoTLibrary::ShowUniversalDoc(){
     return v;
 }
 uint8_t IoTLibrary::addProperty(int * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
-    if(METHOD==METHODS::PUBLISH){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         #if DEVMODE
         printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
@@ -217,7 +192,7 @@ uint8_t IoTLibrary::addProperty(int * localVar,String dataTopic, uint8_t PERMISS
     return 1;
 }
 uint8_t IoTLibrary::addProperty(double * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
-    if(METHOD==METHODS::PUBLISH){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         #if DEVMODE
         printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
@@ -233,7 +208,7 @@ uint8_t IoTLibrary::addProperty(double * localVar,String dataTopic, uint8_t PERM
 }
 
 uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void PubCallback (void)){
-    if(METHOD==METHODS::PUBLISH){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
     if(checkNextEmptyIndexAvailabilityAndIncrement()){
         #if DEVMODE
       //  printf("addProperty  %s %d %d nextInd %d",localVar.c_str(),PERMISSIONS,EVENT,this->NextEmptyIndex);
@@ -248,6 +223,58 @@ uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERM
     return 1;
 }
 
+
+
+
+
+uint8_t IoTLibrary::addProperty(int * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
+    if(checkNextEmptyIndexAvailabilityAndIncrement()){
+        #if DEVMODE
+        printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
+        #endif
+        UniversalINTPointers[NextEmptyIndex]=localVar;
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalINTPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        NextEmptyIndex++;
+        //constructJSONDocument(DATATYPES::INT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
+        
+    }
+    }
+
+    return 1;
+}
+uint8_t IoTLibrary::addProperty(double * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
+    if(checkNextEmptyIndexAvailabilityAndIncrement()){
+        #if DEVMODE
+        printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
+        #endif
+        //constructJSONDocument(DATATYPES::FLOAT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDOUBLEPointers[NextEmptyIndex]=localVar;
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalDOUBLEPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        NextEmptyIndex++;
+        
+    }
+    }
+    return 1;
+}
+
+uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD){
+    if(METHOD==METHODS::PUBLISH && EVENT==EVENTS::ON_LOCAL_CHANGE && PERMISSIONS==PERMISSIONS::WRITE_TO_LOCAL){
+    if(checkNextEmptyIndexAvailabilityAndIncrement()){
+        #if DEVMODE
+      //  printf("addProperty  %s %d %d nextInd %d",localVar.c_str(),PERMISSIONS,EVENT,this->NextEmptyIndex);
+        #endif
+        //constructJSONDocument(DATATYPES::CHAR_ARRAY,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalSTRINGPointers[NextEmptyIndex]=localVar;
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalSTRINGPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        NextEmptyIndex++;
+        
+    }
+    }
+    return 1;
+}
+
 ////////Subscribe methods
 // uint8_t IoTLibrary::addProperty( uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void SubCallback (int), int arg){
 //     if(METHOD==METHODS::SUBSCRIBE){
@@ -257,10 +284,13 @@ uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERM
 
 // }
 
-uint8_t IoTLibrary::addProperty( uint8_t METHOD, String dataTopic, void SubCallback (String topic, String data)){
+uint8_t IoTLibrary::addProperty( String dataTopic,String * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)){
     //  printf("Trying to subscribe to %s",dataTopic.c_str());
-    //  if(METHOD==METHODS::SUBSCRIBE){
+     if(METHOD==METHODS::SUBSCRIBE && PERMISSIONS==PERMISSIONS::READ_FROM_CLOUD && EVENT==EVENTS::ON_CLOUD_CHANGE){
+         printf("TRYING to subscribe");
     //      strcpy(subscribedTopics[subTopicsPointer],dataTopic.c_str());
+     
+     }
     //      char * dataV;
     //     strcpy(dataV,UniversalDocSub[subTopicsPointer]["DataValue"]);
     //     SubCallback(dataTopic,dataV);

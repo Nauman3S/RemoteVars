@@ -30,6 +30,8 @@ IoTLibrary al(&myCommHandle);
 int firstValue=12;
 double secondValue=32.132;
 String thirdValue="HERE is a string";
+String fourthValue="data from cloud";
+int variableT=0;
 
 void setup() {
   #if ! defined(EPOXY_DUINO)
@@ -46,9 +48,13 @@ void setup() {
   pinMode(LED, OUTPUT);
   
   
-    al.addProperty(&firstValue,String("Topic1"), PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, PublishCallback);
-    al.addProperty(&secondValue,String("Topic2"), PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, PublishCallback);
-    al.addProperty(&thirdValue,String("Topic3"), PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, PublishCallback);
+    al.addProperty(&firstValue,String("Topic1"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
+    al.addProperty(&secondValue,String("Topic2"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
+    al.addProperty(&thirdValue,String("Topic3"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
+
+    al.addProperty(&variableT,String("Topic4"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH);
+
+    al.addProperty(String("TOPICSub"),&fourthValue,PERMISSIONS::READ_FROM_CLOUD,EVENTS::ON_CLOUD_CHANGE,METHODS::SUBSCRIBE,SubscribeCallBack);
     // //char * strData="String Data";
     // String strData=String("String Data");
     // al.addProperty(strData,String("Topic2"), PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, PublishCallback);
@@ -84,6 +90,7 @@ void loop() {
 
   
    al.loopIoTLibrary();//required
+   
   // SubscriptionsLoop();
   delay(1500);
   firstValue++;

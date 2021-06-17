@@ -25,7 +25,7 @@ char * SoftwareStack::StrToCharArray(String data){
 }
 
 uint8_t SoftwareStack::isValidJSON(String jsonS){
-  if(jsonS[0]='{' && (jsonS[jsonS.length()-1])=='}'){
+  if(jsonS.indexOf("{")>=0 && (jsonS.indexOf("}")>=0)){
     return 1;
   }
   else{

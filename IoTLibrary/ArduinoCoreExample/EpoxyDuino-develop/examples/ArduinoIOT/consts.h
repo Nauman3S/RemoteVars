@@ -1,7 +1,7 @@
 class PERMISSIONS{
     public:
-        static const int READ= 1;
-        static const int WRITE= 2;
+        static const int READ_FROM_CLOUD= 1;
+        static const int WRITE_TO_LOCAL= 2;
         static const int READ_WRITE= 3;
 
         static const char * getStringPermission(const int p){

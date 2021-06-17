@@ -8,7 +8,7 @@ class CommunicationHandler{
     ~CommunicationHandler();
     
 
-        void readJSONString(char * outStr);//read a JSON string as a char array starts with '{' and ends with '}'
+        String readJSONString();//read a JSON string as a char array starts with '{' and ends with '}'
         void sendJSONString(String str);//sends a JSON string as a char array
 
 
@@ -39,16 +39,12 @@ void CommunicationHandler::sendJSONString(String str){
   //  }
 }
 
-void CommunicationHandler::readJSONString(char * outStr){
+String CommunicationHandler::readJSONString(){
     printf("COMMHANDLE AS A READER");
     char startW='{';
     char endW='}';
-
-    //read from serial, wifi, rf etc from '{'  to '}' and store it in the variable below
-    char  JSONRead[1024];
-    //check if the JSON is valid
-    if(JSONRead[0]==startW && JSONRead[strlen(JSONRead)-1]){
-        strcpy(outStr,JSONRead);
-        
-    }
+    String incommingJSON="";
+    //read from serial, wifi, rf etc from '{'  to '}' and store it in the variable above
+    return incommingJSON;
+    
 }
