@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#define DEVM 1
 class CommunicationHandler{
 
     public:
@@ -8,7 +9,7 @@ class CommunicationHandler{
     
 
         void readJSONString(char * outStr);//read a JSON string as a char array starts with '{' and ends with '}'
-        void sendJSONString(char * str);//sends a JSON string as a char array
+        void sendJSONString(String str);//sends a JSON string as a char array
 
 
 };
@@ -21,14 +22,21 @@ CommunicationHandler::~CommunicationHandler()
 {
     printf("Clearing up Communication Handler");
 }
-void CommunicationHandler::sendJSONString(char * str){
+void CommunicationHandler::sendJSONString(String str){
     char startW='{';
     char endW='}';
     //check if the JSON is valid
-    if(str[0]==startW && str[strlen(str)-1]){
-        printf("COMMHANDLE HERE SENDING %s",str);
+//    if(str.c_str()[0]==startW && str[strlen(str.c_str())-1]){
+    #if DEVM==1
+        SERIAL_PORT_MONITOR.print("COMMHANDLE HERE SENDING ");
+        SERIAL_PORT_MONITOR.println(str);
+    #else
+        Serial.print("COMMHANDLE HERE SENDING ");
+        Serial.println(str);
+    #endif
+
         //send to serial,wifi,rf etc
-    }
+  //  }
 }
 
 void CommunicationHandler::readJSONString(char * outStr){
