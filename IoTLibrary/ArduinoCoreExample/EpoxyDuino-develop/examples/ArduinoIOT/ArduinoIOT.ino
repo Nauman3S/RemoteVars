@@ -55,10 +55,7 @@ void setup() {
     al.addProperty(&variableT,String("Topic4"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH);
 
     al.addProperty(String("TOPICSub"),&fourthValue,PERMISSIONS::READ_FROM_CLOUD,EVENTS::ON_CLOUD_CHANGE,METHODS::SUBSCRIBE,SubscribeCallBack);
-    // //char * strData="String Data";
-    // String strData=String("String Data");
-    // al.addProperty(strData,String("Topic2"), PERMISSIONS::WRITE, EVENTS::ON_CHANGE,METHODS::PUBLISH, PublishCallback);
-
+  
     
     
     SERIAL_PORT_MONITOR.println( al.ShowUniversalDoc());
@@ -71,22 +68,13 @@ void setup() {
 // }
 
 void LEDHandler() {
+  LEDValue=fourthValue.toInt();
   digitalWrite(LED, LEDValue);
   delay(200);
   
 }
 
 void loop() {
-  //SERIAL_PORT_MONITOR.println(F("SOS"));
-  // int dataValue=12;
-  // String returnV=al.publishData(String("Topic1"),dataValue);
-  // SERIAL_PORT_MONITOR.println(returnV.c_str());
-
-  // String strDataValue=String("this is a string data");
-  // String returnV2=al.publishData(String("Topic2"),strDataValue);
-  // SERIAL_PORT_MONITOR.println(returnV2.c_str());
-
-  // LEDHandler();
 
   
    al.loopIoTLibrary();//required

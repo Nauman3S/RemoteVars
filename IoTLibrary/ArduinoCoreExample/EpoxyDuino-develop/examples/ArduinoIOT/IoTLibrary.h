@@ -99,26 +99,29 @@ void IoTLibrary::PublisherLoop(){
     //serialize json for sending to communication handler
     char a[600];
     for(int i=0;i<NextEmptyIndex;i++){
-    
+      
+        jh.extractDataID(UniversalDoc[i]);
     #if DEVMODE
     printf("SENDING: \n%s\n",a);
     #endif
     //jh.updateJSON(UniversalDoc[i],UniversalINTPointers[i]);
     //SERIAL_PORT_MONITOR.print( "EXTRACTED TYPE:");
     //SERIAL_PORT_MONITOR.println( );
-    if(jh.extractDataType(UniversalDoc[i])==String("i")){
-        // SERIAL_PORT_MONITOR.print( "UPDATED INT:");
+    if(jh.extractDataType(UniversalDoc[i]).indexOf("i")>=0){
+      
+        SERIAL_PORT_MONITOR.print( "UPDATED INT:");
         // SERIAL_PORT_MONITOR.println(*UniversalINTPointers[i] );
         String UpdatedValue=jh.updateJSON(UniversalDoc[i],*UniversalINTPointers[i]);
         // SERIAL_PORT_MONITOR.print( "UPDATED VAL:");
         // SERIAL_PORT_MONITOR.println(UpdatedValue );
         UniversalDoc[i]=UpdatedValue;
+        
     }
-    else if(jh.extractDataType(UniversalDoc[i])==String("d")){
+    else if(jh.extractDataType(UniversalDoc[i]).indexOf("d")>=0){
         String UpdatedValue=jh.updateJSON(UniversalDoc[i],*UniversalDOUBLEPointers[i]);
         UniversalDoc[i]=UpdatedValue;
     }
-    else if(jh.extractDataType(UniversalDoc[i])==String("s")){
+    else if(jh.extractDataType(UniversalDoc[i]).indexOf("s")>=0){
         String UpdatedValue=jh.updateJSON(UniversalDoc[i],*UniversalSTRINGPointers[i]);
         UniversalDoc[i]=UpdatedValue;
     }
@@ -182,7 +185,7 @@ uint8_t IoTLibrary::addProperty(int * localVar,String dataTopic, uint8_t PERMISS
         printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
         #endif
         UniversalINTPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalINTPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalINTPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         //constructJSONDocument(DATATYPES::INT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         PubCallback();
@@ -199,7 +202,7 @@ uint8_t IoTLibrary::addProperty(double * localVar,String dataTopic, uint8_t PERM
         #endif
         //constructJSONDocument(DATATYPES::FLOAT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         UniversalDOUBLEPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalDOUBLEPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalDOUBLEPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         PubCallback();
     }
@@ -215,7 +218,7 @@ uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERM
         #endif
         //constructJSONDocument(DATATYPES::CHAR_ARRAY,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         UniversalSTRINGPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalSTRINGPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalSTRINGPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         PubCallback();
     }
@@ -234,7 +237,7 @@ uint8_t IoTLibrary::addProperty(int * localVar,String dataTopic, uint8_t PERMISS
         printf("addProperty  %d %d %d nextInd %d",*localVar,PERMISSIONS,EVENT,this->NextEmptyIndex);
         #endif
         UniversalINTPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalINTPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalINTPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         //constructJSONDocument(DATATYPES::INT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         
@@ -251,7 +254,7 @@ uint8_t IoTLibrary::addProperty(double * localVar,String dataTopic, uint8_t PERM
         #endif
         //constructJSONDocument(DATATYPES::FLOAT,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         UniversalDOUBLEPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalDOUBLEPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalDOUBLEPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         
     }
@@ -267,7 +270,7 @@ uint8_t IoTLibrary::addProperty(String * localVar,String dataTopic, uint8_t PERM
         #endif
         //constructJSONDocument(DATATYPES::CHAR_ARRAY,localVar,dataTopic,PERMISSIONS,EVENT,METHOD);
         UniversalSTRINGPointers[NextEmptyIndex]=localVar;
-        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalSTRINGPointers[NextEmptyIndex],dataTopic,PERMISSIONS,EVENT,METHOD);
+        UniversalDoc[NextEmptyIndex]=jh.constructJSON(*UniversalSTRINGPointers[NextEmptyIndex],dataTopic,NextEmptyIndex,PERMISSIONS,EVENT,METHOD);
         NextEmptyIndex++;
         
     }

@@ -9,7 +9,7 @@ class JSONHandler{
     String constructJSON(double Value, String DataTopic,  uint8_t ID ,uint8_t Permission, uint8_t Event, uint8_t Method);
     
     String extractDataType(String jsonV);
-    
+    String extractDataID(String jsonV);
     
     String updateJSON(String JSONV, String Value);
     String updateJSON(String JSONV, int Value);
@@ -26,10 +26,21 @@ class JSONHandler{
 
 };
 String JSONHandler::extractDataType(String jsonV){
+  int a1=jsonV.indexOf("DataType:");
+  int a2=jsonV.indexOf(",Value");
+
+  String s1=jsonV.substring(a1,a2);
+  SERIAL_PORT_MONITOR.println(s1);
+  return s1;
+}
+String JSONHandler::extractDataID(String jsonV){
+  printf("DataID Func::");
   
-  String s1=ss.StringSeparator(jsonV,',',2);
-  s1=ss.StringSeparator(jsonV,':',1);
-  s1=ss.StringSeparator(s1,',',0);
+  int a1=jsonV.indexOf("ID:");
+  int a2=jsonV.indexOf(",Permission");
+  String s1=jsonV.substring(a1,a2);
+  SERIAL_PORT_MONITOR.println(s1);
+  printf("END DataID Func::");
   return s1;
 }
 
@@ -50,18 +61,29 @@ String JSONHandler::updateJSON(String JSONV, String Value){
   return NewString;
 }
 String JSONHandler::updateJSON(String JSONV, int Value){
+  // String NewString=JSONV;
+  
+  // SERIAL_PORT_MONITOR.println("JSONV:::");
+  // SERIAL_PORT_MONITOR.println(JSONV);
+  // int a1=NewString.indexOf("Value:");
+  // int a2=NewString.indexOf(",DataTopic");
+  // String oldValue=NewString.substring(a1,a2);
+  // SERIAL_PORT_MONITOR.println("OLDDV:::");
+  // SERIAL_PORT_MONITOR.println(oldValue);
+
+  // NewString.replace(String(oldValue),String(Value));
+  // SERIAL_PORT_MONITOR.println("Replacing int v with new int v:::");
+  // SERIAL_PORT_MONITOR.println(NewString);
+
+
+
   String NewString;
   String de=JSONV;
-  // de.remove(0,1);
   de.replace("{", "");
   de.replace("}", "");
-  // de.remove(de.length()-1);
   String v0=ss.StringSeparator(de,',',0);
   String v1="Value:"+String(Value);
   String v2=ss.StringSeparator(de,',',2);
-  
-  SERIAL_PORT_MONITOR.print("TESTING UPDATE JSON");
-  SERIAL_PORT_MONITOR.println(v2);
   String v3=ss.StringSeparator(de,',',3);
   String v4=ss.StringSeparator(de,',',4);
   String v5=ss.StringSeparator(de,',',5);
