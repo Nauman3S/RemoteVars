@@ -44,7 +44,7 @@ int seconds;
 void initProperties() {
 #if defined(BOARD_HAS_WIFI)
   BasicCloud.addProperty(led, Permission::Write).onUpdate(onLedChange);         //onLedChange is called when thing1/board1/pub/led is written to
-  BasicCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);  //publish thing1/board1/pub/potentiometer at least every 10 seconds even if not changes
+  BasicCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);  //publish thing1/board1/pub/potentiometer at least every 10 seconds even if not changed
   BasicCloud.addProperty(seconds, Permission::Read).publishOnChange(1);
   BasicCloud.addProperty(dataStruct, Permission::Read).publishOnChange(1);
   BasicCloud.addProperty(remote_potentiometer, "board2", "potentiometer2", Permission::write).onUpdate(onRemotePotentiometerChange);
