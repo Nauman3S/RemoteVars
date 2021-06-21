@@ -25,7 +25,7 @@ void onLedChange() {
   digitalWrite(LED_BUILTIN, led);
 }
 
-//this is called by RemoteVars then board2 publishes potentiometer2 on the thing1/board2/pub/potentiometer2 topic
+//this is called by RemoteVars when board2 publishes potentiometer2 on the thing1/board2/pub/potentiometer2 topic
 void onRemotePotentiometerChange() {
   Serial.print("RemotePotentiometer changed to ");
   Serial.println(remote_potentiometer);
