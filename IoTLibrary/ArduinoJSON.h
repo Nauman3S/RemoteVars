@@ -10,6 +10,8 @@ class JSONHandler{
     
     String extractDataType(String jsonV);
     String extractDataID(String jsonV);
+    String extractTopic(String jsonV);
+    String extractData(String jsonV);
     
     String updateJSON(String JSONV, String Value);
     String updateJSON(String JSONV, int Value);
@@ -30,81 +32,107 @@ String JSONHandler::extractDataType(String jsonV){
   int a2=jsonV.indexOf(",Value");
 
   String s1=jsonV.substring(a1,a2);
-  SERIAL_PORT_MONITOR.println(s1);
+  //SERIAL_PORT_MONITOR.println(s1);
+  return s1;
+}
+
+String JSONHandler::extractTopic(String jsonV){
+  int a1=jsonV.indexOf("DataTopic:");
+  int a2=jsonV.indexOf(",ID:");
+
+  String s1=jsonV.substring(a1+10,a2);
+  //SERIAL_PORT_MONITOR.println(s1);
+  return s1;
+}
+String JSONHandler::extractData(String jsonV){
+  int a1=jsonV.indexOf("Value:");
+  int a2=jsonV.indexOf(",DataTopic:");
+
+  String s1=jsonV.substring(a1+6,a2);
+  //SERIAL_PORT_MONITOR.println(s1);
   return s1;
 }
 String JSONHandler::extractDataID(String jsonV){
-  printf("DataID Func::");
+  //printf("DataID Func::");
   
   int a1=jsonV.indexOf("ID:");
   int a2=jsonV.indexOf(",Permission");
   String s1=jsonV.substring(a1,a2);
-  SERIAL_PORT_MONITOR.println(s1);
-  printf("END DataID Func::");
+  //SERIAL_PORT_MONITOR.println(s1);
+  //printf("END DataID Func::");
   return s1;
 }
 
 String JSONHandler::updateJSON(String JSONV, String Value){
-  String NewString;
-  String de=JSONV;
-  de.replace("{", "");
-  de.replace("}", "");
-  String v0=ss.StringSeparator(de,',',0);//Dtype
-  String v1="Value:"+String(Value);//value
-  String v2=ss.StringSeparator(de,',',2);//topic
-  String v3=ss.StringSeparator(de,',',3);
-  String v4=ss.StringSeparator(de,',',4);
-  String v5=ss.StringSeparator(de,',',5);
+  String NewString=JSONV;
+  int a1=NewString.indexOf("Value:");
+  int a2=NewString.indexOf(",DataTopic");
+  String oldValue=NewString.substring(a1+6,a2);
+  NewString.replace(String(oldValue),String(Value));
   
-  NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
+
+  // String NewString;
+  // String de=JSONV;
+  // de.replace("{", "");
+  // de.replace("}", "");
+  // String v0=ss.StringSeparator(de,',',0);//Dtype
+  // String v1="Value:"+String(Value);//value
+  // String v2=ss.StringSeparator(de,',',2);//topic
+  // String v3=ss.StringSeparator(de,',',3);
+  // String v4=ss.StringSeparator(de,',',4);
+  // String v5=ss.StringSeparator(de,',',5);
+  
+  // NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
   //NewString=String("{")+ss.StringSeparator(JSONV,',',1)+String(",")+String("Value:")+String(Value)+String(",")+ss.StringSeparator(JSONV,',',2)+String(",")+ss.StringSeparator(JSONV,',',3)+String(",")+ss.StringSeparator(JSONV,',',4)+String(",");
   return NewString;
 }
 String JSONHandler::updateJSON(String JSONV, int Value){
-  // String NewString=JSONV;
+  String NewString=JSONV;
+  int a1=NewString.indexOf("Value:");
+  int a2=NewString.indexOf(",DataTopic");
+  String oldValue=NewString.substring(a1+6,a2);
+  NewString.replace(String(oldValue),String(Value));
+  //SERIAL_PORT_MONITOR.println("Replacing int v with new int v:::");
+  //SERIAL_PORT_MONITOR.println(NewString);
+
+
+
+  // String NewString;
+  // String de=JSONV;
+  // de.replace("{", "");
+  // de.replace("}", "");
+  // //SERIAL_PORT_MONITOR.println(de);
+  // String v0=ss.StringSeparator(de,',',0);
+  // String v1="Value:"+String(Value);
+  // String v2=ss.StringSeparator(de,',',2);
   
-  // SERIAL_PORT_MONITOR.println("JSONV:::");
-  // SERIAL_PORT_MONITOR.println(JSONV);
-  // int a1=NewString.indexOf("Value:");
-  // int a2=NewString.indexOf(",DataTopic");
-  // String oldValue=NewString.substring(a1,a2);
-  // SERIAL_PORT_MONITOR.println("OLDDV:::");
-  // SERIAL_PORT_MONITOR.println(oldValue);
-
-  // NewString.replace(String(oldValue),String(Value));
-  // SERIAL_PORT_MONITOR.println("Replacing int v with new int v:::");
-  // SERIAL_PORT_MONITOR.println(NewString);
-
-
-
-  String NewString;
-  String de=JSONV;
-  de.replace("{", "");
-  de.replace("}", "");
-  String v0=ss.StringSeparator(de,',',0);
-  String v1="Value:"+String(Value);
-  String v2=ss.StringSeparator(de,',',2);
-  String v3=ss.StringSeparator(de,',',3);
-  String v4=ss.StringSeparator(de,',',4);
-  String v5=ss.StringSeparator(de,',',5);
+  // String v3=ss.StringSeparator(de,',',3);
+  // String v4=ss.StringSeparator(de,',',4);
+  // String v5=ss.StringSeparator(de,',',5);
   
-  NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
+  //NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
   //NewString=String("{")+ss.StringSeparator(JSONV,',',1)+String(",")+String("Value:")+String(Value)+String(",")+ss.StringSeparator(JSONV,',',2)+String(",")+ss.StringSeparator(JSONV,',',3)+String(",")+ss.StringSeparator(JSONV,',',4)+String(",");
   return NewString;
 }
 String JSONHandler::updateJSON(String JSONV, double Value){
-  String NewString;
-  String de=JSONV;
-  de.replace("{", "");
-  de.replace("}", "");
-  String v0=ss.StringSeparator(de,',',0);
-  String v1="Value:"+String(Value);
-  String v2=ss.StringSeparator(de,',',2);
-  String v3=ss.StringSeparator(de,',',3);
-  String v4=ss.StringSeparator(de,',',4);
-  String v5=ss.StringSeparator(de,',',5);
+  String NewString=JSONV;
+  int a1=NewString.indexOf("Value:");
+  int a2=NewString.indexOf(",DataTopic");
+  String oldValue=NewString.substring(a1+6,a2);
+  NewString.replace(String(oldValue),String(Value));
+
+  // String NewString;
+  // String de=JSONV;
+  // de.replace("{", "");
+  // de.replace("}", "");
+  // String v0=ss.StringSeparator(de,',',0);
+  // String v1="Value:"+String(Value);
+  // String v2=ss.StringSeparator(de,',',2);
+  // String v3=ss.StringSeparator(de,',',3);
+  // String v4=ss.StringSeparator(de,',',4);
+  // String v5=ss.StringSeparator(de,',',5);
   
-  NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
+  // NewString=String("{")+v0+String(",")+v1+String(",")+v2+String(",")+v3+String(",")+v4+String(",")+v5+String("}");
   //NewString=String("{")+ss.StringSeparator(JSONV,',',1)+String(",")+String("Value:")+String(Value)+String(",")+ss.StringSeparator(JSONV,',',2)+String(",")+ss.StringSeparator(JSONV,',',3)+String(",")+ss.StringSeparator(JSONV,',',4)+String(",");
   return NewString;
 }

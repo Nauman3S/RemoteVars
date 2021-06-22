@@ -6,8 +6,8 @@
 #include "CommunicationHandler.h"
 
 
-#define DEVMODE 1 //dev mode helper
-#define STRING_EMU 1 //arduino string object emulator
+#define DEVMODE 0 //dev mode helper
+#define STRING_EMU 0 //arduino string object emulator
 
 // #if STRING_EMU==0
 // class String{
@@ -46,6 +46,8 @@ class IoTLibrary
     
     //subscribe prototypes
     uint8_t addProperty( String dataTopic,String * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)); //simple callback function prototype
+    uint8_t addProperty( String dataTopic,int * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)); //simple callback function prototype
+    uint8_t addProperty( String dataTopic,double * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)); //simple callback function prototype
 
     // uint8_t addProperty(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (int), int arg); //int callback
     // uint8_t addProperty(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD, void callback (float), float arg); //float callback
@@ -68,11 +70,11 @@ class IoTLibrary
         uint8_t dataPubPointer=0;
 
         //Subscriber Vars
-        uint8_t NumberOfSubDocs=0;
+        //uint8_t NumberOfSubDocs=0;
         uint8_t readPointer=0;
         uint8_t subTopicsPointer=0;
         //DynamicJsonDocument UniversalDocSub(1024);
-        String UniversalDocSub[MAX_UNIVERSAL_DOC_ARRAY_LEN];
+       // String UniversalDocSub[MAX_UNIVERSAL_DOC_ARRAY_LEN];
         String subscribedTopics[MAX_UNIVERSAL_DOC_ARRAY_LEN];
         //DynamicJsonDocument doc(1024);
         ///
@@ -85,7 +87,7 @@ class IoTLibrary
 
         void PublisherLoop();
         void SubscriberLoop();
-        void (*SubCallback) (String topic, String data);
+        void (*SubCallbackGlobal) (String topic, String data);
 
        // void constructJSONDocument(String dataValue, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD);
 
@@ -109,7 +111,7 @@ void IoTLibrary::PublisherLoop(){
     //SERIAL_PORT_MONITOR.println( );
     if(jh.extractDataType(UniversalDoc[i]).indexOf("i")>=0){
       
-        SERIAL_PORT_MONITOR.print( "UPDATED INT:");
+        //SERIAL_PORT_MONITOR.print( "UPDATED INT:");
         // SERIAL_PORT_MONITOR.println(*UniversalINTPointers[i] );
         String UpdatedValue=jh.updateJSON(UniversalDoc[i],*UniversalINTPointers[i]);
         // SERIAL_PORT_MONITOR.print( "UPDATED VAL:");
@@ -140,15 +142,32 @@ void IoTLibrary::PublisherLoop(){
 void IoTLibrary::SubscriberLoop(){
     
     String incommingDataJSON=UniversalCommHandle->readJSONString();
+   // incommingDataJSON=String("{DataType:i,Value:12,DataTopic:remote_potentiometer,ID:1,Permission:2,Event:3,Method:1}");//sample
     if(jh.isValidJSON(incommingDataJSON)==1){
-        printf("validjson");    
+        //printf("validjson");    
+        String topicR=jh.extractTopic(incommingDataJSON);
+        String valR;
+        for(int i=0;i<subTopicsPointer;i++){
+            
+            if(topicR.indexOf(subscribedTopics[i])>=0){
+                //if topic is subscribed
+                valR=jh.extractData(incommingDataJSON);
+                    SubCallbackGlobal(topicR,String(valR));
+                if(jh.extractDataType(incommingDataJSON).indexOf("i")>=0){
+                    //integer data received
+                    //SERIAL_PORT_MONITOR.println("SUBSCRIBED and reced");
+                    
+
+                }
+            }
+        }
     }
     else{
         //Incomming JSON is invalid
     }
 
     
-    printf("SubscriberLOOPEND");
+    //printf("SubscriberLOOPEND");
     
    
 }
@@ -291,19 +310,39 @@ uint8_t IoTLibrary::addProperty( String dataTopic,String * localVar,uint8_t PERM
     //  printf("Trying to subscribe to %s",dataTopic.c_str());
      if(METHOD==METHODS::SUBSCRIBE && PERMISSIONS==PERMISSIONS::READ_FROM_CLOUD && EVENT==EVENTS::ON_CLOUD_CHANGE){
          printf("TRYING to subscribe");
+         SERIAL_PORT_MONITOR.println(dataTopic);
+         subscribedTopics[subTopicsPointer]=dataTopic;
+         subTopicsPointer++;
+         SubCallbackGlobal=SubCallback;
     //      strcpy(subscribedTopics[subTopicsPointer],dataTopic.c_str());
      
      }
-    //      char * dataV;
-    //     strcpy(dataV,UniversalDocSub[subTopicsPointer]["DataValue"]);
-    //     SubCallback(dataTopic,dataV);
-    //      subTopicsPointer++;
-    //      if(subTopicsPointer==MAX_UNIVERSAL_DOC_ARRAY_LEN){
-    //          subTopicsPointer=0;
-    //      }
-       
-         
+}
+
+uint8_t IoTLibrary::addProperty( String dataTopic,int * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)){
+    //  printf("Trying to subscribe to %s",dataTopic.c_str());
+     if(METHOD==METHODS::SUBSCRIBE && PERMISSIONS==PERMISSIONS::READ_FROM_CLOUD && EVENT==EVENTS::ON_CLOUD_CHANGE){
+         printf("TRYING to subscribe");
+         SERIAL_PORT_MONITOR.println(dataTopic);
+         subscribedTopics[subTopicsPointer]=dataTopic;
+         subTopicsPointer++;
+         SubCallbackGlobal=SubCallback;
+    //      strcpy(subscribedTopics[subTopicsPointer],dataTopic.c_str());
      
+     }
+}
+
+uint8_t IoTLibrary::addProperty( String dataTopic,double * localVar,uint8_t PERMISSIONS, uint8_t EVENT,uint8_t METHOD, void SubCallback (String topic, String data)){
+    //  printf("Trying to subscribe to %s",dataTopic.c_str());
+     if(METHOD==METHODS::SUBSCRIBE && PERMISSIONS==PERMISSIONS::READ_FROM_CLOUD && EVENT==EVENTS::ON_CLOUD_CHANGE){
+         printf("TRYING to subscribe");
+         SERIAL_PORT_MONITOR.println(dataTopic);
+         subscribedTopics[subTopicsPointer]=dataTopic;
+         subTopicsPointer++;
+         SubCallbackGlobal=SubCallback;
+    //      strcpy(subscribedTopics[subTopicsPointer],dataTopic.c_str());
+     
+     }
 }
 // uint8_t IoTLibrary::addProperty(int localVar, uint8_t PERMISSIONS, uint8_t EVENT, uint8_t METHOD,void callback (int), int arg){
 //     #if DEVMODE
