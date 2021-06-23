@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 //#include "ArduinoJSON.h"
+#if SHOW_DEBUG_MESSAGES
+#define DEVM 1
+#else
 #define DEVM 0
+#endif
 class CommunicationHandler{
 
     public:
