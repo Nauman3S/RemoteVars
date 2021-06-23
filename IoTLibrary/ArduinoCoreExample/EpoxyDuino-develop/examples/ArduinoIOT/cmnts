@@ -1,0 +1,41 @@
+1)DEBUG FIXED, chnage DEVMODE to 0 in IoTLibrary.h and it will not print everything
+2)Now the data json is sent to CommunicationHandler and the CommunicationHandler automatically extract mqtt topic and 
+mqtt data from the incommingJSON and send it to publish fucntion
+3)Value field is handled properley I have put it in the last but it will not make any difference
+
+Almost done. The biggest issue is that everything prints all the time. 
+Even if the value doesn't change. The is what ON_CHANGE means.
+
+And I have strange output:
+
+{DataType:i,Value:199,DataTopic:Topic1,ID:1,Permission:2,Event:3,Method:1}
+{DataType:d,Value:69.53,DataTopic:Topic2,ID:3,Permission:2,Event:3,Method:1}
+3,Method:1}
+
+
+
+
+Also, setting DEBUG to 0 causes nothing to print. I can fix it.
+
+
+And how is MQTT supposed to work when the Topic is in the message?
+ That should be passed to the communication handler. 
+ The communication class should deal with that kind of meta data. I know how to fix it.
+
+Also, the Value: field should be last incase it contains any of your keywords.
+
+Also, how is remote_potentiometer being called in your example? I see nowhere that any serial data is read.
+
+String CommunicationHandler::readJSONString(){
+//printf("COMMHANDLE AS A READER");
+char startW='{';
+char endW='}';
+String incommingJSON="";
+//read from serial, wifi, rf etc from '{' to '}' and store it in the variable above
+return incommingJSON;
+}
+
+I don't know what code you are running.
+
+A small note, data structures like strings should be sent as base64.  
+Unless you plan on escaping special characters like "}" or just not allowing it.  I can fix that also.

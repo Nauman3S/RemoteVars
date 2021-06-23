@@ -48,16 +48,16 @@ void setup() {
   SERIAL_PORT_MONITOR.begin(115200);
   while (!SERIAL_PORT_MONITOR); // For Leonardo/Micro
 
-
+  SERIAL_PORT_MONITOR.println( "asd");
   
-  al.addProperty(&firstValue,String("Topic1"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
-  al.addProperty(&secondValue,String("Topic2"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
-  al.addProperty(&thirdValue,String("Topic3"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback);
-  al.addProperty(&variableT,String("Topic4"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH);
+  al.addProperty(String("Topic1"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback,&firstValue);
+  al.addProperty(String("Topic2"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback,&secondValue);
+  al.addProperty(String("Topic3"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH, PublishCallback,&thirdValue);
+  al.addProperty(String("Topic4"), PERMISSIONS::WRITE_TO_LOCAL, EVENTS::ON_LOCAL_CHANGE,METHODS::PUBLISH,&variableT);
 
 
   //subscribe to a topic
-  al.addProperty(String("remote_potentiometer"),&remote_potentiometer,PERMISSIONS::READ_FROM_CLOUD,EVENTS::ON_CLOUD_CHANGE,METHODS::SUBSCRIBE,SubscribeCallBack);
+  al.addProperty(String("remote_potentiometer"),PERMISSIONS::READ_FROM_CLOUD,EVENTS::ON_CLOUD_CHANGE,METHODS::SUBSCRIBE,SubscribeCallBack);
 
   
   
